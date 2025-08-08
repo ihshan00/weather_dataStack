@@ -21,7 +21,7 @@ create_dirs:
 
 .PHONY: setup
 setup: venv 
-	$(PIP) install -r requirements.txt
+	$(PIP) install -r weather_pipeline/requirements.txt
 
 .PHONY: clean
 clean:

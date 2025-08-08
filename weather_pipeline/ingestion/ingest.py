@@ -83,5 +83,5 @@ def publish():
     finally:
         producer.close()
 
-publish()
+
 

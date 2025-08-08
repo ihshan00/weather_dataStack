@@ -120,27 +120,51 @@ services:
       - "5432:5432"
 
   # ─────────────── Airflow ───────────────
-  airflow:
-    image: apache/airflow:2.7.2
-    container_name: airflow
-    restart: always
+  webserver:
+    image: apache/airflow:2.6.0-python3.9
+    command: webserver
+    entrypoint: ['/opt/airflow/script/entrypoint.sh']
     depends_on:
       - postgres
     environment:
-      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY}
-      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW__WEBSERVER__SECRET_KEY}
+      - LOAD_EX=n
+      - EXECUTOR=Sequential
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW_WEBSERVER_SECRET_KEY=this_is_a_very_secured_key
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
     volumes:
-      - ./airflow/dags:/opt/airflow/dags
+      - ../airflow/dags:/opt/airflow/dags
+      - ../requirements.txt:/opt/airflow/requirements.txt
     ports:
       - "8080:8080"
-    command: >
-      bash -c "
-        airflow db upgrade &&
-        airflow users create --username ihshan --password admin --firstname ihshan --lastname admin --role Admin --email admin@example.com &&
-        airflow webserver & airflow scheduler
-      "
+    healthcheck:
+      test: ['CMD-SHELL', "[ -f /opt/airflow/airflow-webserver.pid ]"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - confluent
+
+  scheduler:
+    image: apache/airflow:2.6.0-python3.9
+    depends_on:
+      webserver:
+        condition: service_healthy
+    volumes:
+      - ../airflow/dags:/opt/airflow/dags
+      - ../requirements.txt:/opt/airflow/requirements.txt
+    environment:
+      - LOAD_EX=n
+      - EXECUTOR=Sequential
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW_WEBSERVER_SECRET_KEY=this_is_a_very_secured_key
+    command: bash -c "pip install -r ./requirements.txt && airflow db upgrade && airflow scheduler"
+    networks:
+      - confluent
+
 
   # ─────────────── Spark Master ───────────────
   spark-master:
@@ -179,7 +203,7 @@ services:
       MINIO_PROMETHEUS_AUTH_TYPE: "public"
     volumes:
       - minio_data:/data
-    command: server /data --console-address ":9001"
+    command: server /data --console-address ":9001" /data
 
   # ─────────────── Prometheus ───────────────
   prometheus:

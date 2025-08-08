@@ -15,14 +15,14 @@ default_args = {
 with DAG(
     dag_id='weather_pipeline',
     default_args=default_args,
-    schedule_interval='*/5 * * * *',   # every 5 minutes
+    schedule_interval='*/1 * * * *',   
     start_date=datetime(2025, 1, 1),
     catchup=False
 ) as dag:
 
     ingest = PythonOperator(
         task_id='fetch_and_publish',
-        python_callable=lambda: __import__('ingestion.ingest').publish(),
+        python_callable=lambda: __import__('../ingestion.ingest').publish()
     )
 
     # spark_raw = SparkSubmitOperator(
