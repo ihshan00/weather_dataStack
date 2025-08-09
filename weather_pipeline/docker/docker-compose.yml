@@ -255,9 +255,9 @@ services:
   #     - confluent
 
 volumes:
-  postgres_data:
-  minio-data: /data
-  grafana_data:
+  - postgres_data:
+  - ./minio-data: /data
+  - grafana_data:
 
 networks:
   confluent: {}
