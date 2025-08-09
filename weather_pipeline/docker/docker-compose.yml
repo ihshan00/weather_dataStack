@@ -2,21 +2,21 @@ version: '3.8'
 
 services:
   zookeeper:
-      image: confluentinc/cp-zookeeper:7.4.0
-      hostname: zookeeper
-      container_name: zookeeper
-      ports:
-        - "2181:2181"
-      environment:
-        ZOOKEEPER_CLIENT_PORT: 2181
-        ZOOKEEPER_TICK_TIME: 2000
-      healthcheck:
-        test: ['CMD', 'bash', '-c', "echo 'ruok' | nc localhost 2181"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-      networks:
-        - confluent
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: ['CMD', 'bash', '-c', "echo 'ruok' | nc localhost 2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - confluent
 
   broker:
     image: confluentinc/cp-server:7.4.0
@@ -47,13 +47,13 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'false'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-    networks:
-      - confluent
     healthcheck:
-      test: [ "CMD", "bash", "-c", 'nc -z localhost 9092' ]
+      test: ["CMD", "bash", "-c", "nc -z broker 29092"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - confluent
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.4.0
@@ -68,14 +68,14 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-    networks:
-      - confluent
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8081/" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/"]
       interval: 30s
       timeout: 10s
       retries: 5
-  
+    networks:
+      - confluent
+
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.4.0
     hostname: control-center
@@ -96,15 +96,14 @@ services:
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       CONFLUENT_METRICS_ENABLE: 'false'
       PORT: 9021
-    networks:
-      - confluent
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9021/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9021/health"]
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - confluent
 
-  # ─────────────── PostgreSQL ───────────────
   postgres:
     image: postgres:13
     container_name: postgres
@@ -117,8 +116,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - confluent
 
-  # ─────────────── Airflow ───────────────
   webserver:
      image: apache/airflow:2.6.0-python3.9
     command: webserver
@@ -166,7 +166,6 @@ services:
     networks:
       - confluent
 
-  # ─────────────── Spark Master ───────────────
   spark-master:
     image: bitnami/spark:3.3
     container_name: spark-master
@@ -175,8 +174,9 @@ services:
     ports:
       - "7077:7077"
       - "8088:8080"
+    networks:
+      - confluent
 
-  # ─────────────── Spark Worker ───────────────
   spark-worker:
     image: bitnami/spark:3.3
     container_name: spark-worker
@@ -189,8 +189,9 @@ services:
       - spark-master
     ports:
       - "8089:8081"
+    networks:
+      - confluent
 
-  # ─────────────── MinIO ───────────────
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -204,52 +205,59 @@ services:
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001" /data
+    networks:
+      - confluent
 
-  # # ─────────────── Prometheus ───────────────
-  # prometheus:
-  #   image: prom/prometheus:latest
-  #   container_name: prometheus
-  #   ports:
-  #     - "9090:9090"
-  #   volumes:
-  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - confluent
 
-  # # ─────────────── Grafana ───────────────
-  # grafana:
-  #   image: grafana/grafana:latest
-  #   container_name: grafana
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     GF_SECURITY_ADMIN_PASSWORD: secret
-  #   volumes:
-  #     - grafana_data:/var/lib/grafana
-  #     - ./monitoring/provisioning:/etc/grafana/provisioning
-  #   depends_on:
-  #     - prometheus
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: secret
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - confluent
 
-  # # ─────────────── Node Exporter ───────────────
-  # node-exporter:
-  #   image: prom/node-exporter:latest
-  #   container_name: node-exporter
-  #   ports:
-  #     - "9100:9100"
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - confluent
 
-  # # ─────────────── cAdvisor ───────────────
-  # cadvisor:
-  #   image: gcr.io/cadvisor/cadvisor:latest
-  #   container_name: cadvisor
-  #   ports:
-  #     - "8081:8080"
-  #   volumes:
-  #     - /:/rootfs:ro
-  #     - /var/run:/var/run:ro
-  #     - /sys:/sys:ro
-  #     - /var/lib/docker/:/var/lib/docker:ro
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8082:8080" # Changed to avoid conflict with schema-registry
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - confluent
 
 volumes:
   postgres_data:
   minio_data:
   grafana_data:
-network:
-  confluent:
+
+networks:
+  confluent: {}
