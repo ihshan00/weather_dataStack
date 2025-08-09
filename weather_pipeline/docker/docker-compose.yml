@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-services:
   zookeeper:
       image: confluentinc/cp-zookeeper:7.4.0
       hostname: zookeeper
@@ -206,47 +205,47 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001" /data
 
-  # ─────────────── Prometheus ───────────────
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  # # ─────────────── Prometheus ───────────────
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
 
-  # ─────────────── Grafana ───────────────
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: secret
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/provisioning:/etc/grafana/provisioning
-    depends_on:
-      - prometheus
+  # # ─────────────── Grafana ───────────────
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     GF_SECURITY_ADMIN_PASSWORD: secret
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #     - ./monitoring/provisioning:/etc/grafana/provisioning
+  #   depends_on:
+  #     - prometheus
 
-  # ─────────────── Node Exporter ───────────────
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
-    ports:
-      - "9100:9100"
+  # # ─────────────── Node Exporter ───────────────
+  # node-exporter:
+  #   image: prom/node-exporter:latest
+  #   container_name: node-exporter
+  #   ports:
+  #     - "9100:9100"
 
-  # ─────────────── cAdvisor ───────────────
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    ports:
-      - "8081:8080"
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
+  # # ─────────────── cAdvisor ───────────────
+  # cadvisor:
+  #   image: gcr.io/cadvisor/cadvisor:latest
+  #   container_name: cadvisor
+  #   ports:
+  #     - "8081:8080"
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:ro
+  #     - /sys:/sys:ro
+  #     - /var/lib/docker/:/var/lib/docker:ro
 
 volumes:
   postgres_data:
