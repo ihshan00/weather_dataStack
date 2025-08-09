@@ -256,7 +256,7 @@ services:
 
 volumes:
   postgres_data:
-  minio_data:
+  minio-data: /data
   grafana_data:
 
 networks:
