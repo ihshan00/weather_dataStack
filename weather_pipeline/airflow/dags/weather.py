@@ -24,30 +24,3 @@ with DAG(
         task_id='fetch_and_publish',
         python_callable=lambda: __import__('../ingestion.ingest').publish()
     )
-
-    # spark_raw = SparkSubmitOperator(
-    #     task_id='spark_raw_etl',
-    #     application='/opt/spark/jobs/submit_raw.py',
-    #     conn_id='spark_default',
-    # )
-
-    # spark_agg = SparkSubmitOperator(
-    #     task_id='spark_aggregate',
-    #     application='/opt/spark/jobs/compute_aggregates.py',
-    #     conn_id='spark_default',
-    # )
-
-    # dbt_run = BashOperator(
-    #     task_id='dbt_transform',
-    #     bash_command='cd /opt/dbt && dbt run && dbt test',
-    # )
-
-    # load_postgres = PostgresOperator(
-    #     task_id='load_to_postgres',
-    #     postgres_conn_id='postgres_default',
-    #     sql='sql/load_hourly_weather.sql',
-    # )
-
-    # Set dependencies
-    # ingest >> spark_raw >> spark_agg >> dbt_run >> load_postgres
-    ingest
