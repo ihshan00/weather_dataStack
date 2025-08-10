@@ -1,12 +1,21 @@
+# Airflow core
 apache-airflow==2.10.3
+
+# Providers you said you need
 apache-airflow-providers-postgres==6.0.0
 apache-airflow-providers-standard==1.3.0
 apache-airflow-providers-google==10.0.0
+apache-airflow-providers-apache-spark
 
+# DB driver
 psycopg2-binary==2.9.6
 
+# Keep protobuf in the 3.12..3.20 range (required by google provider)
 protobuf>=3.12.0,<3.21.0,!=3.18.*,!=3.19.*
 
-pyOpenSSL>=22.0.0,<23.0.0
-cryptography>=40.0.0,<41.0.0
+# Snowflake / pandas / parquet compatibility
 pyarrow>=10.0.1,<10.1.0
+
+# Crypto / TLS — match Airflow requirements; upgrade system OpenSSL if needed
+cryptography>=41.0.5
+pyOpenSSL>=23.2.0
