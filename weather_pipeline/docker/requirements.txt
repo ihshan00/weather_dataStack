@@ -1,7 +1,4 @@
-# Minimal providers only (add others only if needed)
+apache-airflow==2.6.0
 apache-airflow-providers-postgres
-# Uncomment only if your DAGs use Spark Submit
 apache-airflow-providers-apache-spark
-
-# DB driver
 psycopg2-binary
