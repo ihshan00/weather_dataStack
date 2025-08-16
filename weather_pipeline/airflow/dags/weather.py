@@ -4,7 +4,7 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from datetime import datetime, timedelta
-
+from ingestion.ingest import publish
 default_args = {
     'owner': 'you',
     'depends_on_past': False,
@@ -37,7 +37,7 @@ with DAG(
 
     ingest = PythonOperator(
         task_id='fetch_and_publish',
-        python_callable=lambda: __import__('../ingestion.ingest').publish()
+        python_callable=publish
     )
     consume_kafka_task = SparkSubmitOperator(
         task_id="consume_kafka_task",
