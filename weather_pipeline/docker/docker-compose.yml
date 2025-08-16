@@ -155,7 +155,7 @@ services:
   scheduler:
     image: apache/airflow:2.6.0-python3.9
     depends_on:
-      postgres
+      - postgres
     volumes:
       - ../airflow/dags:/opt/airflow/dags
       - ./entrypoint.sh:/opt/airflow/script/entrypoint.sh
