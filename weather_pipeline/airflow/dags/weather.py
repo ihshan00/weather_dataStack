@@ -4,7 +4,7 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from datetime import datetime, timedelta
-from ingestion.ingest import publish
+from ..ingestion.ingest import publish
 default_args = {
     'owner': 'you',
     'depends_on_past': False,

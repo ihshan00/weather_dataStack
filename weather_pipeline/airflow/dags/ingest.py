@@ -9,7 +9,7 @@ from kafka import KafkaProducer
 load_dotenv()
 
 # Kafka configuration
-BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
 TOPIC = os.getenv("KAFKA_TOPIC", "weather_raw")
 
 # Open-Meteo city coordinates
