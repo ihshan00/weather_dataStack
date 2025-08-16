@@ -90,10 +90,7 @@ if [ "$RUN_DB_MIGRATIONS" = "true" ] || [ "$RUN_DB_MIGRATIONS" = "1" ]; then
     run_db_migrations
 fi
 
-# Create admin user if requested
-if [ "$CREATE_ADMIN_USER" = "true" ] || [ "$CREATE_ADMIN_USER" = "1" ]; then
-    create_admin_user
-fi
+create_admin_user
 
 # Start Airflow service passed via docker-compose command
 log "Starting Airflow command: airflow $*"
