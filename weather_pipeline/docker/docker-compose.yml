@@ -166,7 +166,7 @@ services:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       - AIRFLOW_WEBSERVER_SECRET_KEY=this_is_a_very_secured_key
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
-    command:  bash -c "pip install -r /opt/airflow/requirements.txt && airflow db migrate && airflow scheduler"
+    command: ["/opt/airflow/script/entrypoint.sh", "scheduler"]
     networks:
       - confluent
 
