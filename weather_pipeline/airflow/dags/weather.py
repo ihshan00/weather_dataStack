@@ -40,24 +40,23 @@ with DAG(
         python_callable=lambda: __import__('../ingestion.ingest').publish()
     )
     consume_kafka_task = SparkSubmitOperator(
-            task_id="consume_kafka_task",
-            application="/opt/airflow/dags/consume_kafka.py",  
-            conn_id="spark_default",  
-            verbose=True,
-            master="spark://spark-master:7077",  
-            packages=(
-                "org.apache.spark:spark-sql-kafka-0-10_2.13:3.3.2,"
-                "io.delta:delta-core_2.13:2.3.0,"
-                "org.apache.hadoop:hadoop-aws:3.3.4"
-            ),
-            name="ConsumeKafkaToDelta",
-            conf={
-                "spark.hadoop.fs.s3a.endpoint": "http://minio:9000",
-                "spark.hadoop.fs.s3a.access.key": "minioadmin",
-                "spark.hadoop.fs.s3a.secret.key": "minioadmin",
-                "spark.hadoop.fs.s3a.path.style.access": "true",
-                "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-                "spark.delta.logStore.class": "org.apache.spark.sql.delta.storage.S3SingleDriverLogStore",
-            },
-        )
+        task_id="consume_kafka_task",
+        application="/opt/airflow/dags/consume_kafka.py",  
+        conn_id="spark_default",  
+        verbose=True,
+        packages=(
+            "org.apache.spark:spark-sql-kafka-0-10_2.13:3.3.2,"
+            "io.delta:delta-core_2.13:2.3.0,"
+            "org.apache.hadoop:hadoop-aws:3.3.4"
+        ),
+        name="ConsumeKafkaToDelta",
+        conf={
+            "spark.hadoop.fs.s3a.endpoint": "http://minio:9000",
+            "spark.hadoop.fs.s3a.access.key": "minioadmin",
+            "spark.hadoop.fs.s3a.secret.key": "minioadmin",
+            "spark.hadoop.fs.s3a.path.style.access": "true",
+            "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+            "spark.delta.logStore.class": "org.apache.spark.sql.delta.storage.S3SingleDriverLogStore",
+        },
+    )
     ingest >> consume_kafka_task
