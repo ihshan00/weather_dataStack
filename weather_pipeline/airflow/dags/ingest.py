@@ -4,6 +4,7 @@ import time
 import requests
 from dotenv import load_dotenv
 from kafka import KafkaProducer
+import pendulum
 
 # Load environment variables from .env
 load_dotenv()
@@ -23,13 +24,17 @@ CITIES = {
 HOURLY_PARAMS = ["temperature_2m", "precipitation"]
 TIMEZONE = os.getenv("TIMEZONE", "Asia/Colombo")
 INTERVAL_SECONDS = int(os.getenv("FETCH_INTERVAL", 300))  # default 5 minutes
+now = pendulum.now("UTC")
 
+# Yesterday and today
+yesterday = now.subtract(days=1).to_date_string()  
+today = now.to_date_string()  
 
 def  fetch_open_meteo(
     city: str = "Colombo",
     coords: dict = {"latitude": 6.9271, "longitude": 79.8612},
-    start: str = "2025-05-02",
-    end: str = "2025-05-03"
+    start: str = yesterday,
+    end: str = today
     ) -> dict:
     """
     Fetch hourly weather data from Open-Meteo for a given city.
@@ -65,13 +70,9 @@ def publish():
 
     try:
         while True:
-            # Define date range for current fetch
-            today = time.strftime("%Y-%m-%d", time.localtime())
-            # fetch next day as end_date to cover an hour window
-            tomorrow = time.strftime("%Y-%m-%d", time.localtime(time.time() + 86400))
-
+          
             for city, coords in CITIES.items():
-                payload = fetch_open_meteo(city, coords, today, tomorrow)
+                payload = fetch_open_meteo(city, coords, yesterday, today)
                 producer.send(TOPIC, value=payload)
                 print(f"Sent data for {city} at {payload['fetched_at']}")
 
@@ -82,6 +83,5 @@ def publish():
         print("Stopping ingestion...")
     finally:
         producer.close()
-
 
 
