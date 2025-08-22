@@ -10,14 +10,12 @@ import pendulum
 load_dotenv()
 
 # Kafka configuration
-BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
+BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", 'broker:29092')
 TOPIC = os.getenv("KAFKA_TOPIC", "weather_raw")
 
 # Open-Meteo city coordinates
 CITIES = {
-    "Colombo": {"latitude": 6.9271, "longitude": 79.8612},
-    "Kandy":   {"latitude": 7.2906, "longitude": 80.6337},
-    "Galle":   {"latitude": 6.0535, "longitude": 80.2210}
+    "Colombo": {"latitude": 6.9271, "longitude": 79.8612}
 }
 
 # Data parameters
@@ -63,7 +61,7 @@ def  fetch_open_meteo(
 def publish():
     # Initialize Kafka producer
     producer = KafkaProducer(
-        bootstrap_servers=BOOTSTRAP_SERVERS.split(","),
+        bootstrap_servers=BOOTSTRAP_SERVERS,
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
         acks="all"
     )
@@ -73,6 +71,7 @@ def publish():
           
             for city, coords in CITIES.items():
                 payload = fetch_open_meteo(city, coords, yesterday, today)
+                print(payload)
                 producer.send(TOPIC, value=payload)
                 print(f"Sent data for {city} at {payload['fetched_at']}")
 
@@ -83,5 +82,8 @@ def publish():
         print("Stopping ingestion...")
     finally:
         producer.close()
+
+
+publish()
 
 

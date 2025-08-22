@@ -32,7 +32,7 @@ def create_spark_connection():
         raise
 
 
-def connect_to_kafka(spark, topic='weather-data', bootstrap_servers='kafka:9092'):
+def connect_to_kafka(spark, topic='weather_raw', bootstrap_servers='broker:9092'):
     """
     Create a streaming DataFrame by reading from Kafka.
     """
