@@ -1,0 +1,16 @@
+FROM apache/airflow:2.6.0-python3.9
+
+USER root
+
+# Install Java (OpenJDK 11)
+RUN apt-get update && \
+    apt-get install -y openjdk-11-jdk curl && \
+    apt-get clean
+
+# Set JAVA_HOME
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+# Switch back to airflow user
+USER airflow
+

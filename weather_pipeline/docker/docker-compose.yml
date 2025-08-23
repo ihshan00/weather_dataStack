@@ -120,7 +120,9 @@ services:
       - confluent
 
   webserver:
-    image: apache/airflow:2.6.0-python3.9
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
     command: webserver
     entrypoint: ['/opt/airflow/script/entrypoint.sh']
     depends_on:
@@ -154,7 +156,9 @@ services:
       - confluent
 
   scheduler:
-    image: apache/airflow:2.6.0-python3.9
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
     depends_on:
       - postgres
     volumes:
@@ -184,7 +188,7 @@ services:
       - SPARK_MODE=master
     ports:
       - "7077:7077"
-      - "8088:8080"
+      - "8088:8088"
     networks:
       - confluent
 
