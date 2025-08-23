@@ -83,7 +83,7 @@ def publish():
         time.sleep(5)
         loggin.info("Ending Job..")
 
-    except Exception as e: :
+    except Exception as e: 
         loggin.error(f"Exception caused: {e}")
     finally:
         producer.close()
