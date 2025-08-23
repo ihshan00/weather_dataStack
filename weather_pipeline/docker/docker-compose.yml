@@ -127,7 +127,7 @@ services:
       - postgres
     environment:
       - LOAD_EX=n
-      - EXECUTOR=Sequential
+      - EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       - AIRFLOW_WEBSERVER_SECRET_KEY=this_is_a_very_secured_key
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
@@ -142,6 +142,7 @@ services:
       - ../airflow/dags:/opt/airflow/dags
       - ./entrypoint.sh:/opt/airflow/script/entrypoint.sh
       - ./requirements.txt:/opt/airflow/requirements.txt
+      - airflow_logs:/opt/airflow/logs
     ports:
       - "8080:8080"
     healthcheck:
@@ -160,9 +161,14 @@ services:
       - ../airflow/dags:/opt/airflow/dags
       - ./entrypoint.sh:/opt/airflow/script/entrypoint.sh
       - ./requirements.txt:/opt/airflow/requirements.txt
+      - airflow_logs:/opt/airflow/logs
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
     environment:
       - LOAD_EX=n
-      - EXECUTOR=Sequential
+      - EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       - AIRFLOW_WEBSERVER_SECRET_KEY=this_is_a_very_secured_key
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
@@ -217,6 +223,6 @@ volumes:
   postgres_data:
   minio_data:
   grafana_data:
-
+  airflow_logs:
 networks:
   confluent: {}

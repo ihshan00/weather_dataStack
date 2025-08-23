@@ -9,7 +9,7 @@ default_args = {
     'owner': 'you',
     'depends_on_past': False,
     'retries': 2,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=1),
 }
 
 """
@@ -30,7 +30,7 @@ Create a new connection with:
 with DAG(
     dag_id='weather_pipeline',
     default_args=default_args,
-    schedule_interval='*/1 * * * *',   
+    schedule_interval=None,   
     start_date=datetime(2025, 1, 1),
     catchup=False
 ) as dag:

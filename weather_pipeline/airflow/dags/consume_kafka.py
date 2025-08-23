@@ -2,9 +2,14 @@ import logging
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType
-
+import sys
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig()
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 
 
 def create_spark_connection():
@@ -32,7 +37,7 @@ def create_spark_connection():
         raise
 
 
-def connect_to_kafka(spark, topic='weather_raw', bootstrap_servers='broker:9092'):
+def connect_to_kafka(spark, topic='weather_raw', bootstrap_servers='broker:29092'):
     """
     Create a streaming DataFrame by reading from Kafka.
     """

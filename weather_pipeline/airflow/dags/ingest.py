@@ -8,7 +8,13 @@ import pendulum
 import logging
 # Load environment variables from .env
 load_dotenv()
+import sys
 from datetime import datetime
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 
 
 # Kafka configuration
@@ -61,32 +67,32 @@ def  fetch_open_meteo(
 
 
 def publish():
-    # Initialize Kafka producer
-    logging.info("Intiating the Producer")
+    logging.info("Initiating the Producer")
     producer = KafkaProducer(
         bootstrap_servers=BOOTSTRAP_SERVERS,
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
         acks="all"
     )
-    logging.info(f"Producer Intiated to {BOOTSTRAP_SERVERS}")
+    logging.info(f"Producer initiated to {BOOTSTRAP_SERVERS}")
+
     try:
         for city, coords in CITIES.items():
             payload = fetch_open_meteo(city, coords, yesterday, today)
             producer.send(TOPIC, value=payload)
-            
-            dt = datetime.fromtimestamp(payload["fetched_at"])
 
+            # Convert timestamp to human-readable format
+            dt = datetime.fromtimestamp(payload["fetched_at"])
             formatted = dt.strftime("%Y-%m-%d %H:%M:%S")
 
             logging.info(f"Sent data for {city} at {formatted}")
-        producer.flush()
-        time.sleep(5)
-        loggin.info("Ending Job..")
 
-    except Exception as e: :
-        loggin.error(f"Exception caused: {e}")
+        producer.flush()
+        logging.info("Job finished successfully")
+
+    except Exception as e:
+        logging.error(f"Exception caused: {e}")
+        raise  # important for Airflow to catch failures
+
     finally:
         producer.close()
-
-
 
