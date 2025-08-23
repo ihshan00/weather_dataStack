@@ -15,7 +15,7 @@ def create_spark_connection():
         spark = SparkSession.builder \
             .appName('WeatherKafkaToDelta') \
             .config('spark.jars.packages', \
-                    'org.apache.spark:spark-sql-kafka-0-10_2.13:3.4.1,io.delta:delta-core_2.13:2.4.0,org.apache.hadoop:hadoop-aws:3.3.4') \
+                    'org.apache.spark:spark-sql-kafka-0-10_2.13:3.3.1,io.delta:delta-core_2.13:2.3.0,org.apache.hadoop:hadoop-aws:3.3.4') \
             .config('spark.hadoop.fs.s3a.endpoint', 'http://minio:9000') \
             .config('spark.hadoop.fs.s3a.access.key', 'minioadmin') \
             .config('spark.hadoop.fs.s3a.secret.key', 'minioadmin') \

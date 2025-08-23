@@ -5,9 +5,11 @@ import requests
 from dotenv import load_dotenv
 from kafka import KafkaProducer
 import pendulum
-
+import logging
 # Load environment variables from .env
 load_dotenv()
+from datetime import datetime
+
 
 # Kafka configuration
 BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", 'broker:29092')
@@ -60,30 +62,31 @@ def  fetch_open_meteo(
 
 def publish():
     # Initialize Kafka producer
+    logging.info("Intiating the Producer")
     producer = KafkaProducer(
         bootstrap_servers=BOOTSTRAP_SERVERS,
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
         acks="all"
     )
-
+    logging.info(f"Producer Intiated to {BOOTSTRAP_SERVERS}")
     try:
-        while True:
-          
-            for city, coords in CITIES.items():
-                payload = fetch_open_meteo(city, coords, yesterday, today)
-                print(payload)
-                producer.send(TOPIC, value=payload)
-                print(f"Sent data for {city} at {payload['fetched_at']}")
+        for city, coords in CITIES.items():
+            payload = fetch_open_meteo(city, coords, yesterday, today)
+            producer.send(TOPIC, value=payload)
+            
+            dt = datetime.fromtimestamp(payload["fetched_at"])
 
-            producer.flush()
-            time.sleep(INTERVAL_SECONDS)
+            formatted = dt.strftime("%Y-%m-%d %H:%M:%S")
 
-    except KeyboardInterrupt:
-        print("Stopping ingestion...")
+            logging.info(f"Sent data for {city} at {formatted}")
+        producer.flush()
+        time.sleep(5)
+        loggin.info("Ending Job..")
+
+    except Exception as e: :
+        loggin.error(f"Exception caused: {e}")
     finally:
         producer.close()
 
-
-publish()
 
 
